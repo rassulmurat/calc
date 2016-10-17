@@ -52,6 +52,7 @@ int calculate(void)
             result = operator0 / operator1;
             break;
     }
+    printk("Calculated\n");
     return 0;
 }
 
@@ -119,8 +120,13 @@ static struct miscdevice miscoprnd = {
 //proc
 static ssize_t result_read_proc(struct file *file, char *buf, size_t count, loff_t *llf)
 {
-    sprintf( buf, "%d", result);
-    return count;
+    if(*llf != 0) {
+        return 0;
+    }
+    snprintf(buf, sizeof(int),"%d", result);
+    printk("buf: %s\n", buf);
+    *llf = sizeof(int);
+    return sizeof(int);
 }
 
 static const struct file_operations result_fops = {
@@ -159,6 +165,7 @@ static void __exit cleanup(void)
     misc_deregister(&miscop0);
     misc_deregister(&miscop1);
     misc_deregister(&miscoprnd);
+    remove_proc_entry("result", NULL);
 }
 
 module_init(init);
