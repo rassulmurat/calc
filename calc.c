@@ -52,7 +52,6 @@ int calculate(void)
             result = operator0 / operator1;
             break;
     }
-    printk("Calculated\n");
     return 0;
 }
 
@@ -62,6 +61,7 @@ static ssize_t write_op0 (struct file *file, const char *buf, size_t count, loff
     int res;
     convert(buf, count, &res);
     operator0 = res;
+    printk("Operator0: %d Added ", operator0);
     calculate();
     return count;
 }
@@ -83,6 +83,7 @@ static ssize_t write_op1 (struct file *file, const char *buf, size_t count, loff
     int res;
     convert(buf, count, &res);
     operator1 = res;
+    printk("Operator1: %d Added ", operator1);
     calculate();
     return count;
 }
@@ -102,6 +103,10 @@ static struct miscdevice miscop1 = {
 static ssize_t write_oprnd (struct file *file, const char *buf, size_t count, loff_t *llf)
 {
     operand = buf[0];
+    if (operand == '\\') {
+        operand = buf[1];
+    }
+    printk("Operand %c Added ", operand);
     calculate();
     return count;
 }
@@ -123,10 +128,10 @@ static ssize_t result_read_proc(struct file *file, char *buf, size_t count, loff
     if(*llf != 0) {
         return 0;
     }
-    snprintf(buf, sizeof(int),"%d", result);
-    printk("buf: %s\n", buf);
-    *llf = sizeof(int);
-    return sizeof(int);
+    printk("result: %d\n", result);
+    snprintf(buf, sizeof(result)*10,"%d", result);
+    *llf = sizeof(result)*10;
+    return sizeof(result)*10;
 }
 
 static const struct file_operations result_fops = {
