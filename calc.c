@@ -21,8 +21,9 @@ int convert(const char *buf, int count, int *res)
     int i = 0;
     int tmp;
     int sum = 0;
-    while (i < count - 1) {
-        int power = count - 2 - i;
+    // printk("Count: %d", count);
+    while (i < count) {
+        int power = count - 1 - i;
         int rlpwr = 1;
         while (power > 0) {
             rlpwr = rlpwr * 10;
@@ -30,6 +31,7 @@ int convert(const char *buf, int count, int *res)
         }
         tmp = buf[i] - '0';
         sum = sum + tmp*rlpwr;
+        // printk("tmp: %d\n", tmp);
         ++i;
     }
     *res = sum;
