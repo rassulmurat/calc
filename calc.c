@@ -21,7 +21,6 @@ int convert(const char *buf, int count, int *res)
     int i = 0;
     int tmp;
     int sum = 0;
-    // printk("Count: %d", count);
     while (i < count) {
         int power = count - 1 - i;
         int rlpwr = 1;
@@ -31,7 +30,6 @@ int convert(const char *buf, int count, int *res)
         }
         tmp = buf[i] - '0';
         sum = sum + tmp*rlpwr;
-        // printk("tmp: %d\n", tmp);
         ++i;
     }
     *res = sum;
@@ -64,7 +62,6 @@ static ssize_t write_op0 (struct file *file, const char *buf, size_t count, loff
     convert(buf, count, &res);
     operator0 = res;
     printk("Operator0: %d Added ", operator0);
-    calculate();
     return count;
 }
 
@@ -86,7 +83,6 @@ static ssize_t write_op1 (struct file *file, const char *buf, size_t count, loff
     convert(buf, count, &res);
     operator1 = res;
     printk("Operator1: %d Added ", operator1);
-    calculate();
     return count;
 }
 
@@ -109,7 +105,6 @@ static ssize_t write_oprnd (struct file *file, const char *buf, size_t count, lo
         operand = buf[1];
     }
     printk("Operand %c Added ", operand);
-    calculate();
     return count;
 }
 
@@ -127,6 +122,14 @@ static struct miscdevice miscoprnd = {
 //proc
 static ssize_t result_read_proc(struct file *file, char *buf, size_t count, loff_t *llf)
 {
+    if(operator1 == 0 && operand == '/') {
+        char *err = "ERROR";
+        printk("Deviding by 0");
+        strcpy(buf, err);
+        *llf = count;
+        return count;
+    }
+    calculate();
     if(*llf != 0) {
         return 0;
     }
